@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Agen Rahasia: Kode Rasio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .font-mono {
+            font-family: 'Space Mono', monospace;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        
+        /* Animations */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scorePop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); color: #4ade80; }
+            100% { transform: scale(1); }
+        }
+
+        .animate-slide-in { animation: slideIn 0.4s ease-out forwards; }
+        .animate-score-pop { animation: scorePop 0.4s ease-out; }
+        
+        .card-hologram {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-game {
+            transition: all 0.2s;
+        }
+        .btn-game:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .btn-game:active {
+            transform: translateY(1px);
+        }
+
+        .hidden-answer {
+            filter: blur(10px);
+            opacity: 0.5;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .hidden-answer.revealed {
+            filter: blur(0);
+            opacity: 1;
+            cursor: default;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9IiMwZjE3MmEiLz4KPHBhdGggZD0iTTAgMGg0MHYxSDB6TTAgMzl2MWg0MHYtMXoiIGZpbGw9IiMxZTI5M2IiIGZpbGwtb3BhY2l0eT0iMC41Ii8+CjxwYXRoIGQ9Ik0wIDB2NDBoMXYtNDB6TTM5IDB2NDBoMXYtNDB6IiBmaWxsPSIjMWUyOTNiIiBmaWxsLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4=')]">
+
+    <!-- Left Side: Main Game Area (70%) -->
+    <main class="flex-1 h-full flex flex-col p-4 relative z-10 overflow-y-auto">
+        <!-- Header / Navigation -->
+        <header class="flex justify-between items-center mb-6 card-hologram p-4 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🕵️‍♂️</span>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+                        MISI AGEN RAHASIA
+                    </h1>
+                    <p class="text-xs text-blue-300 font-mono tracking-widest">KODE: RASIO_KELAS_6</p>
+                </div>
+            </div>
+            <button onclick="goHome()" class="btn-game px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-semibold flex items-center gap-2 border border-slate-500">
+                <span>🏠</span> Markas Utama
+            </button>
+        </header>
+
+        <!-- Dynamic Content Container -->
+        <div id="game-container" class="flex-1 flex flex-col justify-center items-center w-full max-w-4xl mx-auto w-full">
+            <!-- Content will be injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Right Side: Leaderboard Control (30%) -->
+    <aside class="w-full md:w-80 h-full card-hologram border-l border-blue-500/30 p-4 flex flex-col z-20 shadow-[-10px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="text-center mb-4">
+            <h2 class="text-xl font-bold text-yellow-400 flex justify-center items-center gap-2">
+                🏆 LEADERBOARD 🏆
+            </h2>
+            <p class="text-xs text-slate-400">Kontrol Skor Direktur Markas</p>
+        </div>
+
+        <div id="teams-container" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2">
+            <!-- Teams will be injected here -->
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-700">
+            <button onclick="resetGame()" class="w-full py-2 bg-red-900/50 hover:bg-red-800 text-red-200 rounded-lg text-sm transition-colors border border-red-700/50">
+                ⚠️ Reset Seluruh Game
+            </button>
+        </div>
+    </aside>
+
+    <script>
+        // --- DATA & STATE ---
+        let teams = JSON.parse(localStorage.getItem('agentGameTeams')) || [
+            { id: 1, name: 'Tim Alpha', icon: '🕵️', color: 'bg-red-500', score: 0 },
+            { id: 2, name: 'Tim Beta', icon: '🕵️‍♀️', color: 'bg-blue-500', score: 0 },
+            { id: 3, name: 'Tim Charlie', icon: '🕶️', color: 'bg-green-500', score: 0 },
+            { id: 4, name: 'Tim Delta', icon: '🚁', color: 'bg-purple-500', score: 0 },
+            { id: 5, name: 'Tim Echo', icon: '📡', color: 'bg-orange-500', score: 0 }
+        ];
+
+        const gameData = {
+            rounds: [
+                {
+                    id: 1,
+                    title: 'RONDE 1: TEBAK CEPAT',
+                    subtitle: 'Kode Kilat',
+                    icon: '⚡',
+                    rules: 'Guru membacakan soal 2 kali. Tim tercepat memencet bel/angkat bendera berhak menjawab. Salah? Dilempar ke tim lain (maks 1x).',
+                    pointsInfo: 'Benar: +10 | Salah: -5 | Bonus Cepat: +5',
+                    questions: [
+                        { q: "Di dalam kelas terdapat 10 siswa laki-laki dan 15 siswa perempuan. Berapa perbandingan paling sederhana antara jumlah siswa laki-laki dan siswa perempuan?", a: "2 : 3" },
+                        { q: "Bibi memiliki 12 buah apel dan 8 buah jeruk. Berapakah rasio apel terhadap jeruk dalam bentuk paling sederhana?", a: "3 : 2" },
+                        { q: "Perbandingan buku cerita Ani dan Budi adalah 1 : 3. Jika buku cerita Ani ada 5 buah, berapa jumlah buku cerita Budi?", a: "15 buah (5 x 3)" },
+                        { q: "Umur kakak 15 tahun dan umur adik 10 tahun. Berapa perbandingan umur kakak dan adik?", a: "3 : 2" },
+                        { q: "Dalam sebuah kotak pensil terdapat 3 pulpen merah dan 9 pulpen biru. Berapa rasio pulpen merah terhadap *seluruh* pulpen dalam kotak?", a: "1 : 4 (Rasio 3 : 12)" }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: 'RONDE 2: BENAR ATAU SALAH',
+                    subtitle: 'Analisis Bukti',
+                    icon: '⚖️',
+                    rules: 'Semua tim bermain serentak. Tulis "BENAR" atau "SALAH" di papan. Angkat serentak saat hitungan ke-3.',
+                    pointsInfo: 'Benar: +10 | Salah: Tidak ada pengurangan poin',
+                    questions: [
+                        { q: 'Pernyataan: "Jika rasio kucing dan anjing di penitipan hewan adalah 2 : 5, dan jumlah kucing ada 4 ekor, maka jumlah anjing ada 10 ekor."', a: "BENAR (2x2=4, 5x2=10)" },
+                        { q: 'Pernyataan: "Rasio 20 cm terhadap 1 meter adalah 2 : 1."', a: "SALAH (1 m = 100 cm. Rasio 20:100 = 1:5)" },
+                        { q: 'Pernyataan: "Jika uang saku Dika dan Reno berbanding 3 : 4. Uang Dika Rp15.000, maka uang Reno adalah Rp20.000."', a: "BENAR (15000/3 = 5000. 4 x 5000 = 20000)" },
+                        { q: 'Pernyataan: "Rasio jumlah hari libur terhadap jumlah hari sekolah dalam seminggu (asumsi sekolah Senin-Jumat) adalah 2 : 7."', a: "SALAH (Rasio libur:sekolah adalah 2:5)" },
+                        { q: 'Pernyataan: "Perbandingan senilai berarti jika satu nilai bertambah besar, nilai yang lain juga bertambah besar."', a: "BENAR" }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: 'RONDE 3: PILIH JAWABAN',
+                    subtitle: 'Dekode Misi Pilihan Ganda',
+                    icon: '💡',
+                    rules: 'Bermain serentak. Diskusikan dan tulis huruf jawaban (A, B, C, D) di papan. Angkat serentak!',
+                    pointsInfo: 'Benar: +15 | Salah: -5',
+                    questions: [
+                        { q: "Ibu membuat sirup dengan perbandingan 2 gelas sirup dan 5 gelas air. Jika Ibu menggunakan 6 gelas sirup, berapa gelas air yang dibutuhkan?", options: ["A. 10 gelas", "B. 12 gelas", "C. 15 gelas", "D. 20 gelas"], a: "C. 15 gelas (6/2 x 5 = 15)" },
+                        { q: "Jarak kota A dan B pada peta adalah 4 cm. Jika peta tersebut berskala 1 : 100.000, jarak sebenarnya adalah...", options: ["A. 4 km", "B. 40 km", "C. 400 km", "D. 4.000 km"], a: "A. 4 km (4 x 100.000 = 400.000 cm)" },
+                        { q: "Sebuah resep kue membutuhkan 200 gram gula dan 300 gram tepung terigu. Rasio gula terhadap tepung terigu adalah...", options: ["A. 3 : 2", "B. 2 : 3", "C. 2 : 5", "D. 3 : 5"], a: "B. 2 : 3 (200 : 300 = 2 : 3)" },
+                        { q: "Jumlah siswa kelas 6 adalah 36 anak. Jika perbandingan siswa yang suka matematika dan bahasa Indonesia adalah 4 : 5. Berapa banyak siswa yang suka bahasa Indonesia?", options: ["A. 16 siswa", "B. 20 siswa", "C. 24 siswa", "D. 30 siswa"], a: "B. 20 siswa (5/9 x 36 = 20)" },
+                        { q: "Ayah mengisi bensin motornya. Ia membayar Rp30.000 untuk 3 liter bensin. Jika ayah ingin mengisi 5 liter bensin, berapa yang harus ia bayar?", options: ["A. Rp40.000", "B. Rp45.000", "C. Rp50.000", "D. Rp60.000"], a: "C. Rp50.000 (1 liter = 10.000)" }
+                    ]
+                },
+                {
+                    id: 4,
+                    title: 'RONDE 4: TANTANGAN KELOMPOK',
+                    subtitle: 'Operasi Rahasia Berantai',
+                    icon: '🧩',
+                    rules: 'Kerjakan soal cerita bercabang di kertas. Tim pertama yang mengumpulkan jawaban benar ke meja guru mendapat poin penuh. Tim berikutnya berkurang.',
+                    pointsInfo: 'Poin: T1(+30), T2(+25), T3(+20), T4(+15), T5(+10). Salah = 0',
+                    questions: [
+                        { 
+                            q: "Toko Sepeda 'Cepat Maju' bulan lalu menjual sepeda gunung dan sepeda lipat dengan rasio 5 : 3.<br><br>Jika selisih penjualan sepeda gunung dan sepeda lipat adalah 12 unit, tentukan:<br>1. Berapa banyak sepeda gunung yang terjual?<br>2. Berapa banyak sepeda lipat yang terjual?<br>3. Berapa total seluruh sepeda yang terjual?", 
+                            a: "Selisih rasio = 5-3=2. Nilai per rasio = 12/2=6.<br>1. Gunung: 5x6 = 30 unit<br>2. Lipat: 3x6 = 18 unit<br>3. Total: 30+18 = 48 unit" 
+                        }
+                    ]
+                },
+                {
+                    id: 5,
+                    title: 'RONDE 5: BABAK FINAL',
+                    subtitle: 'Misi Penentuan',
+                    icon: '🔥',
+                    rules: 'Soal rebutan untuk 3 TIM TERBAIK! Siapkan bel/bendera. Kecepatan dan ketepatan adalah segalanya.',
+                    pointsInfo: 'Benar: +25 | Salah: -10',
+                    questions: [
+                        { q: "Tiga orang penjahit dapat menyelesaikan 15 baju dalam sehari. Berapa baju yang dapat diselesaikan oleh 5 orang penjahit dalam waktu yang sama?", a: "25 baju (15/3 = 5 per orang. 5 x 5 = 25)" },
+                        { q: "Uang Ali, Budi, dan Cici berbanding 2 : 3 : 5. Jika total uang mereka bertiga adalah Rp50.000, berapakah uang yang dimiliki Cici?", a: "Rp 25.000 (Rasio Cici 5, total rasio 10. 5/10 x 50.000)" },
+                        { q: "Sebuah mobil memerlukan 4 liter bensin untuk menempuh jarak 60 km. Berapa liter bensin yang diperlukan untuk menempuh jarak 150 km?", a: "10 liter (60/4 = 15 km/liter. 150/15 = 10)" }
+                    ]
+                }
+            ]
+        };
+
+        let currentState = {
+            view: 'home', // 'home', 'round-intro', 'question', 'podium'
+            roundIndex: 0,
+            questionIndex: 0
+        };
+
+        // --- STREAMING_CHUNK:Updating Leaderboard Logic... ---
+        function saveTeams() {
+            localStorage.setItem('agentGameTeams', JSON.stringify(teams));
+        }
+
+        function updateScore(teamId, amount) {
+            const team = teams.find(t => t.id === teamId);
+            if(team) {
+                team.score += amount;
+                saveTeams();
+                renderLeaderboard();
+                
+                // Add pop animation to score
+                const scoreElement = document.getElementById(`score-${teamId}`);
+                if(scoreElement) {
+                    scoreElement.classList.remove('animate-score-pop');
+                    void scoreElement.offsetWidth; // trigger reflow
+                    scoreElement.classList.add('animate-score-pop');
+                }
+            }
+        }
+
+        function resetGame() {
+            if(confirm("Apakah Anda yakin ingin mereset seluruh skor dan mengulang permainan?")) {
+                teams.forEach(t => t.score = 0);
+                saveTeams();
+                renderLeaderboard();
+                goHome();
+            }
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('teams-container');
+            // Sort copy of teams for display (optional, but good for game flow)
+            // Let's keep them static order for easy finding by the teacher, 
+            // but highlight the top scorer.
+            
+            const maxScore = Math.max(...teams.map(t => t.score));
+
+            container.innerHTML = teams.map(team => `
+                <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700 flex flex-col gap-2 transition-all ${team.score === maxScore && maxScore > 0 ? 'ring-2 ring-yellow-400/50 bg-slate-800' : ''}">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full ${team.color} flex items-center justify-center text-sm shadow-lg">
+                                ${team.icon}
+                            </div>
+                            <span class="font-bold text-sm text-slate-200">${team.name}</span>
+                        </div>
+                        <span id="score-${team.id}" class="text-xl font-mono font-bold ${team.score < 0 ? 'text-red-400' : 'text-emerald-400'}">
+                            ${team.score}
+                        </span>
+                    </div>
+                    
+                    <!-- Quick Score Controls -->
+                    <div class="grid grid-cols-4 gap-1 mt-1">
+                        <button onclick="updateScore(${team.id}, -5)" class="bg-red-900/40 hover:bg-red-700 text-red-300 text-xs py-1 rounded">-5</button>
+                        <button onclick="updateScore(${team.id}, 5)" class="bg-blue-900/40 hover:bg-blue-700 text-blue-300 text-xs py-1 rounded">+5</button>
+                        <button onclick="updateScore(${team.id}, 10)" class="bg-emerald-900/40 hover:bg-emerald-700 text-emerald-300 text-xs py-1 rounded">+10</button>
+                        <button onclick="updateScore(${team.id}, 15)" class="bg-purple-900/40 hover:bg-purple-700 text-purple-300 text-xs py-1 rounded">+15</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- STREAMING_CHUNK:Navigation and UI Rendering Logic... ---
+        function goHome() {
+            currentState.view = 'home';
+            renderMainContent();
+        }
+
+        function startRound(rIndex) {
+            currentState.view = 'round-intro';
+            currentState.roundIndex = rIndex;
+            currentState.questionIndex = 0;
+            renderMainContent();
+        }
+
+        function showQuestion(qIndex) {
+            currentState.view = 'question';
+            currentState.questionIndex = qIndex;
+            renderMainContent();
+        }
+
+        function revealAnswer() {
+            const answerBox = document.getElementById('answer-box');
+            if(answerBox) {
+                answerBox.classList.add('revealed');
+                answerBox.classList.remove('hidden-answer');
+                answerBox.innerHTML = `
+                    <div class="text-sm text-emerald-400 font-bold mb-1 uppercase tracking-wider">Akses Diberikan: Kunci Jawaban</div>
+                    <div class="text-2xl font-bold text-white">${gameData.rounds[currentState.roundIndex].questions[currentState.questionIndex].a}</div>
+                `;
+            }
+        }
+
+        function renderMainContent() {
+            const container = document.getElementById('game-container');
+            container.innerHTML = ''; // Clear current
+
+            if (currentState.view === 'home') {
+                let html = `
+                    <div class="text-center mb-8 animate-slide-in">
+                        <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">
+                            DASHBOARD MISI
+                        </h2>
+                        <p class="text-slate-400 text-lg">Pilih operasi misi yang akan dijalankan oleh agen.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4 animate-slide-in" style="animation-delay: 0.1s;">
+                `;
+
+                gameData.rounds.forEach((round, index) => {
+                    const isFinal = index === gameData.rounds.length - 1;
+                    const colSpan = isFinal ? "md:col-span-2 lg:col-span-3 max-w-lg mx-auto w-full" : "";
+                    const bgClass = isFinal ? "bg-gradient-to-br from-amber-600/80 to-red-600/80 hover:from-amber-500 hover:to-red-500 ring-2 ring-amber-400" : "bg-slate-800/80 hover:bg-slate-700 border border-blue-500/30 hover:border-blue-400";
+                    
+                    html += `
+                        <div onclick="startRound(${index})" class="${colSpan} ${bgClass} cursor-pointer p-6 rounded-2xl flex flex-col items-center justify-center text-center btn-game shadow-lg backdrop-blur-sm group">
+                            <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">${round.icon}</div>
+                            <h3 class="text-xl font-bold text-white mb-1">${round.title}</h3>
+                            <p class="text-sm text-blue-200">${round.subtitle}</p>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div onclick="renderPodium()" class="md:col-span-2 lg:col-span-3 max-w-lg mx-auto w-full mt-4 bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-400/50 cursor-pointer p-4 rounded-2xl flex items-center justify-center text-center btn-game shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                        <span class="text-2xl mr-3">🎉</span>
+                        <h3 class="text-xl font-bold text-white">TAMPILAN PODIUM PEMENANG</h3>
+                    </div>
+                </div>`;
+                container.innerHTML = html;
+
+            } else if (currentState.view === 'round-intro') {
+                const round = gameData.rounds[currentState.roundIndex];
+                container.innerHTML = `
+                    <div class="card-hologram p-10 rounded-3xl max-w-3xl w-full text-center animate-slide-in relative overflow-hidden">
+                        <!-- Decorative bg -->
+                        <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500 rounded-full blur-[80px] opacity-30"></div>
+                        <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500 rounded-full blur-[80px] opacity-30"></div>
+                        
+                        <div class="text-7xl mb-6 relative z-10">${round.icon}</div>
+                        <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-2 relative z-10">${round.title}</h2>
+                        <h3 class="text-2xl text-blue-400 font-mono mb-8 relative z-10">[ ${round.subtitle} ]</h3>
+                        
+                        <div class="bg-slate-900/80 border border-slate-600 rounded-xl p-6 mb-8 text-left relative z-10">
+                            <h4 class="text-yellow-400 font-bold mb-2 flex items-center gap-2">
+                                <span>📜</span> ATURAN MISI:
+                            </h4>
+                            <p class="text-slate-200 leading-relaxed text-lg mb-4">${round.rules}</p>
+                            
+                            <div class="bg-blue-950/50 p-3 rounded-lg inline-block border border-blue-800">
+                                <span class="text-blue-300 font-mono font-semibold">SISTEM SKOR: ${round.pointsInfo}</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showQuestion(0)" class="relative z-10 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xl rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] btn-game flex items-center gap-3 mx-auto">
+                            Mulai Misi 🚀
+                        </button>
+                    </div>
+                `;
+
+            } else if (currentState.view === 'question') {
+                const round = gameData.rounds[currentState.roundIndex];
+                const qData = round.questions[currentState.questionIndex];
+                
+                let optionsHtml = '';
+                if (qData.options) {
+                    optionsHtml = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full text-left">
+                            ${qData.options.map(opt => `
+                                <div class="bg-slate-800 border border-slate-600 p-4 rounded-xl text-lg font-semibold text-white shadow-md">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = `
+                    <div class="w-full flex justify-between items-center mb-4 text-blue-300 font-mono font-bold px-2">
+                        <span class="bg-blue-900/50 px-3 py-1 rounded-md border border-blue-700/50">${round.title}</span>
+                        <span class="bg-slate-800 px-3 py-1 rounded-md border border-slate-700 text-white">Soal ${currentState.questionIndex + 1} / ${round.questions.length}</span>
+                    </div>
+
+                    <div class="card-hologram p-8 md:p-10 rounded-3xl w-full min-h-[60vh] flex flex-col animate-slide-in shadow-2xl relative">
+                        
+                        <div class="flex-1 flex flex-col justify-center text-center">
+                            <h3 class="text-3xl md:text-4xl font-bold text-white leading-tight mb-8">
+                                ${qData.q}
+                            </h3>
+                            ${optionsHtml}
+                        </div>
+
+                        <!-- Answer Box (Hidden initially) -->
+                        <div id="answer-box" onclick="revealAnswer()" class="hidden-answer mt-10 bg-emerald-900/30 border-2 border-dashed border-emerald-500/50 rounded-xl p-6 text-center group transition-all hover:bg-emerald-900/50">
+                            <div class="text-lg text-emerald-300 font-mono tracking-widest flex items-center justify-center gap-2">
+                                <span>🔒</span> KLIK UNTUK DEKODE JAWABAN
+                            </div>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-slate-700/50">
+                            <button onclick="prevQuestion()" class="${currentState.questionIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'btn-game hover:bg-slate-700'} px-6 py-3 bg-slate-800 rounded-xl font-bold flex items-center gap-2 border border-slate-600" ${currentState.questionIndex === 0 ? 'disabled' : ''}>
+                                ⬅️ Sebelumnya
+                            </button>
+                            
+                            <button onclick="nextQuestion()" class="btn-game px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                                ${currentState.questionIndex === round.questions.length - 1 ? 'Selesai Ronde 🏁' : 'Selanjutnya ➡️'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function nextQuestion() {
+            const round = gameData.rounds[currentState.roundIndex];
+            if (currentState.questionIndex < round.questions.length - 1) {
+                showQuestion(currentState.questionIndex + 1);
+            } else {
+                goHome(); // Back to dashboard if round is finished
+            }
+        }
+
+        function prevQuestion() {
+            if (currentState.questionIndex > 0) {
+                showQuestion(currentState.questionIndex - 1);
+            }
+        }
+
+        function renderPodium() {
+            // Sort teams by score descending
+            const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+            
+            const container = document.getElementById('game-container');
+            
+            let podiumHtml = `
+                <div class="w-full h-full flex flex-col items-center justify-center animate-slide-in text-center">
+                    <h2 class="text-5xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-amber-500 drop-shadow-lg">
+                        🏆 MISI SELESAI 🏆
+                    </h2>
+                    <p class="text-xl text-slate-300 mb-12 font-mono">Agen Spesialis Rasio Terbaik Telah Terpilih!</p>
+                    
+                    <div class="flex items-end justify-center gap-4 md:gap-8 h-64 w-full max-w-4xl px-4">
+            `;
+
+            // Podium heights
+            const heights = ['h-32', 'h-48', 'h-40']; // 2nd, 1st, 3rd
+            const bgColors = ['bg-slate-300', 'bg-yellow-400', 'bg-amber-600'];
+            const textColors = ['text-slate-800', 'text-yellow-900', 'text-amber-100'];
+            
+            // Reorder to 2nd, 1st, 3rd for visual layout
+            const displayOrder = [1, 0, 2]; 
+
+            displayOrder.forEach((index, i) => {
+                if(sortedTeams[index]) {
+                    const t = sortedTeams[index];
+                    const rank = index + 1;
+                    podiumHtml += `
+                        <div class="flex flex-col items-center flex-1 max-w-[150px] transform transition-transform hover:scale-105">
+                            <div class="mb-4 text-center">
+                                <div class="text-4xl mb-2">${t.icon}</div>
+                                <div class="font-bold text-white text-lg truncate w-full">${t.name}</div>
+                                <div class="font-mono text-emerald-400 font-bold text-xl">${t.score} PTS</div>
+                            </div>
+                            <div class="${heights[i]} w-full ${bgColors[i]} rounded-t-lg flex justify-center pt-4 shadow-[0_0_30px_rgba(250,204,21,0.3)] border-t-2 border-white/30 relative overflow-hidden">
+                                <span class="text-4xl font-extrabold ${textColors[i]} opacity-80">${rank}</span>
+                                <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            podiumHtml += `
+                    </div>
+                    
+                    <!-- 4th and 5th place -->
+                    <div class="flex justify-center gap-6 mt-12 w-full max-w-2xl bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+                        ${[3, 4].map(idx => sortedTeams[idx] ? `
+                            <div class="flex items-center gap-3 text-slate-300">
+                                <span class="font-mono text-slate-500 font-bold">#${idx+1}</span>
+                                <span class="text-2xl">${sortedTeams[idx].icon}</span>
+                                <span class="font-semibold">${sortedTeams[idx].name}</span>
+                                <span class="text-emerald-500 font-mono font-bold ml-2">${sortedTeams[idx].score}</span>
+                            </div>
+                        ` : '').join('<div class="w-px h-8 bg-slate-700"></div>')}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = podiumHtml;
+        }
+
+        window.onload = function() {
+            renderLeaderboard();
+            renderMainContent();
+        };
+    </script>
+</body>
+</html>
